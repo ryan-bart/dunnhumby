@@ -1,5 +1,5 @@
 #File: casestudy.py
-#
+#Description: Dunnhumby case study #1
 
 #Source: dunnhumby 2018
 
