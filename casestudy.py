@@ -10,11 +10,44 @@ import pandas as pd
 import numpy as np
 import time
 
-
+#defining list containing all categories and dictionary to store imported dataframes. 
 categories = ['pasta','pasta sauce', 'pancake mixes', 'syrups']
 frames = {}
 
+#Main function
+def __main__():
 
+    getData()
+
+    ProductData = cleanData(frames['dh_product_lookup.csv'])
+    answer = 'start'
+    getData()
+    while answer != 'exit':
+        print("\nThe following options will allow you to navigate through this case study")
+        time.sleep(1)
+        print("\nSelect from the following options:")
+        time.sleep(1)
+        print("""1.Type "1" to see top 5 products in each category.""")
+        print("""2.Type "2" to see top 5 brands in each category.""")
+        print("""3.Type "3" to see top 10 pasta products, total pasta and pasta sauce sales volumes, and top ten pasta-selling stores (customer locations).""")
+        print("""4.Type "4" to see the repeat rate for each category.""")
+        print("""\nType "exit" to exit.""")
+        answer = input("Please enter your selection:")
+
+        if answer == '1':
+            topProducts(ProductData)
+        elif answer == '2':
+            topBrands(ProductData)
+        elif answer == '3':
+            PastaSales(ProductData)
+        elif answer == '4':
+            calcRepeatRate()
+        elif answer == 'exit':
+            break
+        else:
+            input("Invalid Selection. Press Enter to try again.")
+
+#glob together all files containing "dh" and ".csv" from specified directory.  Import each file into dict as dataframe, key is file name including extension. 
 def getData():
     
     os.chdir('C:\dunnhumby - Carbo-Loading CSV')
@@ -27,31 +60,54 @@ def getData():
             df = pd.read_csv(fle)
             frames[fle] = df
 
-def topProducts():
 
-    #Top 5 products in each commodity.  
-    df_3a = pd.DataFrame.merge(frames['dh_transactions.csv'], frames['dh_product_lookup.csv'], on=['upc'])
+#row cleaning function for dh_product_lookup.csv. 
+def cleanProductDataByRow(row):
+    cell = str(row["product_size"])
+    cell = cell.replace(' ','')
+    cell = cell.strip('N')
+    cell = cell.strip('P')
+    cell = cell.lower()
+    if "ounce" in cell:
+        cell = cell.replace("ounce","oz")
+    if "#" in cell:
+        cell = "NaN"
+    return cell
+    
+#clean product lookup dataframe. returns frame. 
+def cleanData(frame):
+    frame["Convert"] = ''
+    frame['Convert'] = frame.apply(cleanProductDataByRow, axis =1)
+    frame['product_size'] = frame['Convert']
+    del frame['Convert']
+    return frame
+
+
+#Prints out top 5 products for each category when called. 
+def topProducts(ProductData):
+ 
+    df_3a = pd.DataFrame.merge(frames['dh_transactions.csv'], ProductData, on=['upc'])
     table = pd.pivot_table(df_3a, index = ["commodity","upc","product_description"], values = ["dollar_sales"],aggfunc=[np.sum])
     
     print("\n\n The top 5 products in each commodity are:\n")
-   
    
     for category in categories:
 
         table2 = table
         table2 = table2.query('commodity == ["{}"]'.format(category))    
         table2 = table2.sort_values(by=('sum','dollar_sales'),ascending = False)
-        table2 = table2.head(5).merge(frames['dh_product_lookup.csv'][['upc','product_description','product_size']], on = ['upc'], how = 'left')
+        table2 = table2.head(5).merge(ProductData[['upc','product_description','product_size']], on = ['upc'], how = 'left')
         table2 = table2.drop('upc',1)
         print("                  {}            \n".format(category))
         print(table2)
         print('\n')
         print('*******************************************************************************\n\n')
 
-def topBrands():
 
-    #Top 5 brands in each commodity
-    df_3a = pd.DataFrame.merge(frames['dh_transactions.csv'], frames['dh_product_lookup.csv'], on=['upc'])
+#Prints out top 5 brands for each category when called. 
+def topBrands(ProductData):
+
+    df_3a = pd.DataFrame.merge(frames['dh_transactions.csv'], ProductData, on=['upc'])
     table = pd.pivot_table(df_3a, index = ["commodity","brand"], values = ["dollar_sales"], aggfunc=[np.sum])
     table.round(2)
 
@@ -66,10 +122,12 @@ def topBrands():
         print('\n')
         print('*******************************************************************************\n\n')
 
-def PastaSales():
+
+#Prints out top 10 pasta products, pasta and pasta sauce sales volume compared to total, and top ten stores based on transactions.
+def PastaSales(ProductData):
 
     #First, printing out top ten products by sales in the Pasta Category
-    df_3a = pd.DataFrame.merge(frames['dh_transactions.csv'], frames['dh_product_lookup.csv'], on=['upc'])
+    df_3a = pd.DataFrame.merge(frames['dh_transactions.csv'], ProductData, on=['upc'])
     comms = df_3a['commodity'].value_counts()
     comms = comms.reset_index()
     comms.columns = ['commodity','numTransactions']
@@ -84,21 +142,17 @@ def PastaSales():
     print("\nPasta Sauce sales volume: {}%".format(pastaSauceCount))
     print("\nCombined Pasta and Sauce sales volume: {}%".format(pastaCount+pastaSauceCount))
 
-
-
     table = pd.pivot_table(df_3a, index = ["commodity","upc","product_description"], values = ["dollar_sales"],aggfunc=[np.sum])
     print("\n\n The top 10 products in Pasta are:\n")
     table2 = table
     table2 = table2.query('commodity == ["pasta"]')    
     table2 = table2.sort_values(by=('sum','dollar_sales'),ascending = False)
-    table2 = table2.merge(frames['dh_product_lookup.csv'][['upc','product_description','product_size']], on = ['upc'], how = 'left')
+    table2 = table2.merge(ProductData[['upc','product_description','product_size']], on = ['upc'], how = 'left')
     table2 = table2.head(10)   
     table2 = table2.drop('upc',1)
     print(table2)
     print('\n')
     print('*******************************************************************************\n\n')
-
-    
 
     df_3a = df_3a.merge(frames['dh_store_lookup.csv'][['store','store_zip_code']], on = ['store'])
     df_3a = df_3a.query('commodity == ["pasta"]')
@@ -113,6 +167,7 @@ def PastaSales():
     print(zipCodes.head(10))
 
 
+#Prints out repeat rate for each category when called. 
 def calcRepeatRate():
     
     for category in categories: 
@@ -140,42 +195,10 @@ def calcRepeatRate():
         print(repeatRate)
         print("")
 
-
-def __main__():
-
-    answer = 'start'
-    getData()
-    while answer != 'exit':
-        print("\nThe following options will allow you to navigate through this case study")
-        time.sleep(3)
-        print("\nSelect from the following options:")
-        time.sleep(1)
-        print("""1.Type "1" to see top 5 products in each category.""")
-        print("""2.Type "2" to see top 5 brands in each category.""")
-        print("""3.Type "3" to see top 10 pasta products, total pasta and pasta sauce sales volumes, and top ten pasta-selling stores (customer locations).""")
-        print("""4.Type "4" to see the repeat rate for each category.""")
-        print("""\nType "exit" to exit.""")
-        answer = input("Pleae enter your selection:")
-
-        if answer == '1':
-            topProducts()
-        elif answer == '2':
-            topBrands()
-        elif answer == '3':
-            PastaSales()
-        elif answer == '4':
-            calcRepeatRate()
-        elif answer == 'exit':
-            break
-        else:
-            input("Invalid Selection. Press Enter to try again.")
-            
+           
             
 __main__()
-#topProducts()
-#topBrands()
-#PastaSales()
-#calcRepeatRate()
+
 
 
   
