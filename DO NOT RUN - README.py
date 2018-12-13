@@ -240,9 +240,7 @@ the more negative the value is, the more aggresive the change is in a negative d
 6 Month Health: 49.613478260941086
 1 Year Health: 93.85960784320609
 
-6. other insights 
 
-MORE TO COME BEFORE INTERVIEW. 
 
 
 

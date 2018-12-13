@@ -23,9 +23,10 @@ def __main__():
     ProductData = cleanData(frames['dh_product_lookup.csv'])
     
     answer = 'start'
-
+    
+    print("\nThe following options will allow you to navigate through this case study")
+    
     while answer != 'exit':
-        print("\nThe following options will allow you to navigate through this case study")
         time.sleep(1)
         print("\nSelect from the following options:")
         time.sleep(1)
