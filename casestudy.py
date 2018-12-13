@@ -58,7 +58,8 @@ def __main__():
 #glob together all files containing "dh" and ".csv" from specified directory.  Import each file into dict as dataframe, key is file name including extension. 
 def getData():
     
-    os.chdir('C:\dunnhumby - Carbo-Loading CSV')
+    path = 'C:\dunnhumby - Carbo-Loading CSV'
+    os.chdir(path)
     files = glob.glob('dh*.csv')
 
     for fle in files:

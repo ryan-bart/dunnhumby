@@ -6,11 +6,13 @@ casestudy.py was written to display all information requested by the Case Study 
 
 All information displayed below except for Pasta health plot (option 5 in program).
 
-In order to run on your computer, replace the path in line 60 with the path to your directory containing the Carbo-Loading dataset (.csv files). 
+In order to run on your computer, change the string saved to the 'path' object (line 61) to the path
+to your directory containing the Carbo-Loading dataset (.csv files). 
+
+path = 'your path'
+
+
 Libraries used: os, pandas, numpy, time, matplotlib, glob
-
-os.chdir('C:\dunnhumby - Carbo-Loading CSV') (line 60)
-
 
  
 
