@@ -167,6 +167,7 @@ def AvgSalesByLocation(frame1, frame2, ProductData):
     frame1 = frame1.query("commodity == ['pasta']")
     frame1 = pd.pivot_table(frame1, index = ["store_zip_code"], values = ["dollar_sales"])
     frame1.columns = ['avg_order_value']
+    frame1['avg_order_value'] = frame1['avg_order_value'].round(2)
     frame3 = frame1.sort_values(['avg_order_value'], ascending = False)
     print("\nTop ten zip codes with highest AVERAGE ORDER VALUE over past 2 years:\n")
     print(frame3.head(10))
