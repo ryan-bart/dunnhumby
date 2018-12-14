@@ -100,11 +100,13 @@ def topProducts(ProductData):
    
     for category in categories:
         table2 = table
-        table2 = table2.query('commodity == ["{}"]'.format(category))    
+        table2 = table2.query('commodity == ["{}"]'.format(category))
+        totalSales = table2['sum','dollar_sales'].sum().round(2)  
         table2 = table2.sort_values(by=('sum','dollar_sales'),ascending = False)
         table2 = table2.head(5).merge(ProductData[['upc','product_description','product_size']], on = ['upc'], how = 'left')
         table2 = table2.drop('upc',1)
         print("                  {}            \n".format(category))
+        print("Total sales over past 2 years: {}".format(totalSales))
         print(table2)
         print('\n')
         print('*******************************************************************************\n\n')
