@@ -1,0 +1,9 @@
+#File: forloop.py
+
+#create a list of numbers one through ten
+numbers = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+
+for iterable in numbers:
+
+    print(iterable)
+
